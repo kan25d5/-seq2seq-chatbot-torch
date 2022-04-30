@@ -19,6 +19,10 @@ class TanakaDataLoader(object):
         self.device = device
         self.batch_first = batch_first
         self.random_state = random_state
+        if random_state is not None:
+            self.shuffle = True
+        else:
+            self.shuffle = False 
 
         self._idx = 0
 
