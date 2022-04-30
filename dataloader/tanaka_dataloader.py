@@ -18,11 +18,20 @@ class TanakaDataLoader(object):
         self.batch_size = batch_size
         self.device = device
         self.batch_first = batch_first
-        self.random_state = random_state
+
+        if random_state is None:
+            self.random_state = None
+        elif type(random_state) == np.random.RandomState:
+            self.random_state = random_state
+        elif type(random_state) == int:
+            self.random_state = np.random.RandomState(random_state)
+        else:
+            raise TypeError("random_stateはintもしくはnp.random.RandomStateの値を期待する．")
+
         if random_state is not None:
             self.shuffle = True
         else:
-            self.shuffle = False 
+            self.shuffle = False
 
         self._idx = 0
 
