@@ -1,1 +1,1 @@
-# -seq2seq-chatbot-torch
+# seq2seq-chatbot-torch
