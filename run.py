@@ -2,6 +2,7 @@ import pytorch_lightning as pl
 from dataloader.tanaka_dataloader import TanakaDataLoader
 from dataloader.tanaka_dataset import TanakaDataset
 from models.seq2seq import Seq2Seq
+from utilities.callbacks import DisplayPredictDialogue
 from utilities.vocab import TanakaVocabs
 from pytorch_lightning.strategies.ddp import DDPStrategy
 from multiprocessing import freeze_support
@@ -28,7 +29,7 @@ def main():
 
     train_dataloader = TanakaDataLoader(train_dataset, BATCH_SIZE)
     dev_dataloader = TanakaDataLoader(dev_dataset, BATCH_SIZE)
-    test_dataloader = TanakaDataLoader(test_dataset, BATCH_SIZE)
+    test_dataloader = TanakaDataLoader(test_dataset, 1, random_state=0)
 
     for x, t in train_dataloader:
         print(x)
