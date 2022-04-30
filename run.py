@@ -44,15 +44,14 @@ def main():
 
     freeze_support()
     trainer = pl.Trainer(
+        callbacks=[DisplayPredictDialogue(vocab, test_dataloader)],
         max_epochs=EPOCH_SIZE,
         accelerator="gpu",
         devices=2,
         plugins=DDPStrategy(find_unused_parameters=False),
     )
 
-    trainer.fit(
-        model, train_dataloaders=train_dataloader, val_dataloaders=dev_dataloader
-    )
+    trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=dev_dataloader)
 
 
 if __name__ == "__main__":
