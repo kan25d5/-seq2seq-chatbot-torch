@@ -5,13 +5,15 @@ from torch.nn.utils.rnn import pad_packed_sequence, pack_padded_sequence
 
 
 class Encoder(nn.Module):
-    def __init__(self, input_dim, hidden_dim) -> None:
+    def __init__(self, input_dim, hidden_dim, padding_idx=0) -> None:
         super().__init__()
 
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
 
-        self.embedding = nn.Embedding(self.input_dim, self.hidden_dim)
+        self.embedding = nn.Embedding(
+            self.input_dim, self.hidden_dim, padding_idx=padding_idx
+        )
         self.lstm = nn.LSTM(self.hidden_dim, self.hidden_dim)
 
         nn.init.xavier_normal_(self.lstm.weight_ih_l0)
@@ -27,13 +29,15 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, hidden_dim, output_dim) -> None:
+    def __init__(self, hidden_dim, output_dim, padding_idx=0) -> None:
         super().__init__()
 
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
 
-        self.embedding = nn.Embedding(self.output_dim, self.hidden_dim)
+        self.embedding = nn.Embedding(
+            self.output_dim, self.hidden_dim, padding_idx=padding_idx
+        )
         self.lstm = nn.LSTM(self.hidden_dim, self.hidden_dim)
         self.out = nn.Linear(hidden_dim, output_dim)
 
