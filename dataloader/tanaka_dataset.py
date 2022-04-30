@@ -8,7 +8,7 @@ class TanakaDataset(object):
         if corpus_type not in ["train", "test", "dev"]:
             raise ValueError("corpus_typeはtrain, test, devのいずれかの値指定")
         if translation_direction not in ["enja", "jaen"]:
-            raise ValueError("corpus_typeはenja, jaenのいずれかの値指定")
+            raise ValueError("translation_directionはenja, jaenのいずれかの値指定")
 
         self.corpus_type = corpus_type
         self.translation_direction = translation_direction
