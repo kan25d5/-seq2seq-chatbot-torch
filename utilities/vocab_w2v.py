@@ -10,7 +10,7 @@ class TanakaVocabs(object):
         self,
         datasets: List[TanakaDataset],
         wv: KeyedVectors,
-        top_words=30000,
+        top_words=50000,
         X_bos=False,
         X_eos=False,
         y_bos=False,
@@ -58,7 +58,7 @@ class TanakaVocabs(object):
 
 
 class JaVocab(object):
-    def __init__(self, wv: KeyedVectors, top_words=30000) -> None:
+    def __init__(self, wv: KeyedVectors, top_words=50000) -> None:
         self.wv = wv
         self.top_words = top_words
 

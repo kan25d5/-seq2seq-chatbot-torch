@@ -19,7 +19,7 @@ def main():
     from gensim.models import KeyedVectors
     from utilities.vocab_w2v import TanakaVocabs
 
-    wv_filepath = "w2v/top_30000.model"
+    wv_filepath = "w2v/top_50000.model"
     wv = KeyedVectors.load_word2vec_format(wv_filepath, binary=True)
     vocabs = TanakaVocabs(datasets, wv, X_eos=True, y_bos=True, y_eos=True)
 
