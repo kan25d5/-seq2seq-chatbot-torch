@@ -132,5 +132,5 @@ dmypy.json
 lightning_logs/
 
 # W2Vフォルダ
-w2v/top_30000
-w2v/top_30000.model
+w2v/top_**
+w2v/top_**

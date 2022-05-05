@@ -2,7 +2,7 @@ import numpy as np
 from gensim.models import KeyedVectors
 
 
-TOP_WORDS = 30000
+TOP_WORDS = 50000
 W2V_FILEPATH = "/home/s2110184/Model/nwjc_word_skip_200_8_25_0_1e4_6_1_0_15.txt.vec"
 
 
