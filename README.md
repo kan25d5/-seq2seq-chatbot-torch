@@ -1,6 +1,6 @@
 # seq2seq-chatbot-torch
 ## Task
-Japanese to English translation model.
+English to Japanese translation model.
 
 ## Using library
 - pytorch==1.11.0 
