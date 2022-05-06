@@ -41,7 +41,7 @@ def main():
     # --------------------------------------
     # Modelの作成
     # --------------------------------------
-    from models.seq2seq import Seq2Seq
+    from models.seq2seq_attention import Seq2Seq
 
     input_dim = len(vocabs.vocab_X.char2id)
     hidden_dim = 200
