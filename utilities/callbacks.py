@@ -12,7 +12,7 @@ class DisplayPredictDialogue(Callback):
         translation_direction="enja",
     ) -> None:
         if translation_direction not in ["enja", "jaen"]:
-            raise ValueError("corpus_typeはenja, jaenのいずれかの値指定")
+            raise ValueError("translation_directionはenja, jaenのいずれかの値指定")
 
         super().__init__()
         self.vocabs = vocabs
