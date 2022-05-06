@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import pytorch_lightning as pl
 from layers.seq2seq_layers import Encoder, Decoder
+from gensim.models import KeyedVectors
 
 
 class Seq2Seq(pl.LightningModule):
@@ -12,6 +13,7 @@ class Seq2Seq(pl.LightningModule):
         input_dim,
         hidden_dim,
         output_dim,
+        wv: KeyedVectors,
         maxlen=20,
         teacher_forcing_rate=0.5,
         ignore_index=0,
@@ -23,12 +25,10 @@ class Seq2Seq(pl.LightningModule):
         self.output_dim = output_dim
         self.maxlen = maxlen
         self.teacher_forcing_rate = teacher_forcing_rate
-        self.criterion = nn.CrossEntropyLoss(
-            reduction="mean", ignore_index=ignore_index
-        )
+        self.criterion = nn.CrossEntropyLoss(reduction="mean", ignore_index=ignore_index)
 
-        self.encoder = Encoder(self.input_dim, self.hidden_dim)
-        self.decoder = Decoder(self.hidden_dim, self.output_dim)
+        self.encoder = Encoder(self.input_dim, self.hidden_dim, wv)
+        self.decoder = Decoder(self.hidden_dim, self.output_dim, wv)
 
     def forward(self, source, target=None, use_teacher_forcing=False):
         batch_size = source.size(1)

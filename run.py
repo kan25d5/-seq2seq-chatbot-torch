@@ -44,10 +44,10 @@ def main():
     from models.seq2seq import Seq2Seq
 
     input_dim = len(vocabs.vocab_X.char2id)
-    hidden_dim = 256
+    hidden_dim = 200
     output_dim = len(vocabs.vocab_y.wv.key_to_index)
 
-    model = Seq2Seq(input_dim, hidden_dim, output_dim)
+    model = Seq2Seq(input_dim, hidden_dim, output_dim, wv)
 
     # --------------------------------------
     # Modelの適合
@@ -65,9 +65,7 @@ def main():
         devices=2,
         plugins=DDPStrategy(find_unused_parameters=False),
     )
-    trainer.fit(
-        model, train_dataloaders=train_dataloader, val_dataloaders=dev_dataloader
-    )
+    trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=dev_dataloader)
     trainer.test(model, test_dataloader)
 
 
