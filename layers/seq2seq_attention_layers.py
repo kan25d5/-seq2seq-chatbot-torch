@@ -41,7 +41,7 @@ class Attention(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, hidden_dim, output_dim, wv: KeyedVectors, padding_idx=0) -> None:
+    def __init__(self, hidden_dim, output_dim, wv: KeyedVectors, padding_idx=0,num_layers=4) -> None:
         super().__init__()
 
         self.hidden_dim = hidden_dim
@@ -50,7 +50,7 @@ class Decoder(nn.Module):
         self.embedding = nn.Embedding(
             self.output_dim, self.hidden_dim, padding_idx=padding_idx
         )
-        self.lstm = nn.LSTM(hidden_dim, hidden_dim)
+        self.lstm = nn.LSTM(hidden_dim, hidden_dim, num_layers=num_layers)
         self.attn = Attention(hidden_dim, hidden_dim)
         self.out = nn.Linear(hidden_dim, output_dim)
 

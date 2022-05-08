@@ -18,6 +18,7 @@ class Seq2Seq(pl.LightningModule):
         maxlen=20,
         teacher_forcing_rate=0.5,
         ignore_index=0,
+        num_layers=4,
     ):
         super().__init__()
 
@@ -26,12 +27,10 @@ class Seq2Seq(pl.LightningModule):
         self.output_dim = output_dim
         self.maxlen = maxlen
         self.teacher_forcing_rate = teacher_forcing_rate
-        self.criterion = nn.CrossEntropyLoss(
-            reduction="mean", ignore_index=ignore_index
-        )
+        self.criterion = nn.CrossEntropyLoss(reduction="mean", ignore_index=ignore_index)
 
-        self.encoder = Encoder(self.input_dim, self.hidden_dim, wv)
-        self.decoder = Decoder(self.hidden_dim, self.output_dim, wv)
+        self.encoder = Encoder(self.input_dim, self.hidden_dim, wv, num_layers=num_layers)
+        self.decoder = Decoder(self.hidden_dim, self.output_dim, wv, num_layers=num_layers)
 
     def forward(self, source, target=None, use_teacher_forcing=False):
         batch_size = source.size(1)
