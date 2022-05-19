@@ -13,3 +13,4 @@ English to Japanese translation model.
 
 ## Models
  - seq2seq(Encoder-Decoder)
+ - seq2seq(Encoder-Decoder + Attention)
