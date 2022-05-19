@@ -16,12 +16,11 @@ def main():
     # --------------------------------------
     # Vocabの作成
     # --------------------------------------
-    from gensim.models import KeyedVectors
-    from utilities.vocab_w2v import TanakaVocabs
+    from utilities.vocab import TanakaVocabs
 
-    wv_filepath = "w2v/top_50000.model"
-    wv = KeyedVectors.load_word2vec_format(wv_filepath, binary=True)
-    vocabs = TanakaVocabs(datasets, wv, X_eos=True, y_bos=True, y_eos=True)
+    vocabs = TanakaVocabs(
+        datasets, top_words=50000, X_bos=True, X_eos=True, y_bos=True, y_eos=True
+    )
 
     # --------------------------------------
     # DataLoaderの作成
@@ -32,22 +31,15 @@ def main():
     dev_dataloader = TanakaDataLoader(dev_dataset, batch_size=BATCH_SIZE)
     test_dataloader = TanakaDataLoader(test_dataset, batch_size=1, random_state=0)
 
-    for x, t in train_dataloader:
-        print(x)
-        print(t)
-        break
-    train_dataloader._reset()
-
     # --------------------------------------
     # Modelの作成
     # --------------------------------------
-    from models.seq2seq_attention import Seq2Seq
+    from models.seq2seq_transformer import Seq2Seq
 
     input_dim = len(vocabs.vocab_X.char2id)
-    hidden_dim = 200
-    output_dim = len(vocabs.vocab_y.wv.key_to_index)
+    output_dim = len(vocabs.vocab_y.char2id)
 
-    model = Seq2Seq(input_dim, hidden_dim, output_dim, wv)
+    model = Seq2Seq(input_dim, output_dim)
 
     # --------------------------------------
     # Modelの適合
