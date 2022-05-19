@@ -23,7 +23,7 @@ class TanakaDataset(object):
 
         self.messages = []
         self.responses = []
-        self._load_corpus()
+        self.load_corpus()
         self.save_corpus()
 
     def load_corpus(self):
