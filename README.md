@@ -9,6 +9,7 @@ English to Japanese translation model.
 - tensorflow==2.4.1
 - gensim==4.1.2
 - scikit-learn==1.0.2
+- dill==0.3.4
 
 ## Models
  - seq2seq(Encoder-Decoder)

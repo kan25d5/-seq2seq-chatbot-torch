@@ -134,3 +134,6 @@ lightning_logs/
 # W2Vフォルダ
 w2v/top_**
 w2v/top_**
+
+# DataSet pickle File
+dataloader/tanaka_dataset**
