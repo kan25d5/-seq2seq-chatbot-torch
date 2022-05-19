@@ -51,7 +51,13 @@ def main():
 
     freeze_support()
     trainer = pl.Trainer(
-        callbacks=[DisplayPredictDialogue(vocabs, test_dataloader)],
+        callbacks=[
+            DisplayPredictDialogue(
+                vocabs,
+                TanakaDataLoader(train_dataset, batch_size=1, random_state=0),
+                TanakaDataLoader(test_dataset, batch_size=1, random_state=0),
+            )
+        ],
         max_epochs=EPOCH_SIZE,
         accelerator="gpu",
         devices=2,

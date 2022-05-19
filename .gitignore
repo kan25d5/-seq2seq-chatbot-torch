@@ -137,3 +137,6 @@ w2v/top_**
 
 # DataSet pickle File
 dataloader/tanaka_dataset**
+
+# output
+output/

@@ -22,6 +22,8 @@ class Seq2Seq(pl.LightningModule):
         super().__init__()
 
         # フィールド値の定義
+        self.src_vocab_size = src_vocab_size
+        self.tgt_vocab_size = tgt_vocab_size
         self.emb_size = emb_size
         self.d_model = emb_size
         self.nhead = self.d_model // 64
@@ -47,13 +49,13 @@ class Seq2Seq(pl.LightningModule):
         # 損失関数の定義
         self.criterion = nn.CrossEntropyLoss(ignore_index=self.padding_idx)
 
-    def forward(self, source: Tensor, target: Tensor = None):
-        if target is None:
-            return self._predict_by_greedy(source)
-        else:
-            return self._traning(source, target)
+    def encode(self, src: Tensor, src_mask: Tensor):
+        return self.encoder(self.pe(self.src_tok_emb(src)), src_mask)
 
-    def _traning(self, source: Tensor, target: Tensor):
+    def decode(self, tgt: Tensor, memory: Tensor, tgt_mask: Tensor):
+        return self.decoder(self.pe(self.tgt_tok_emb(tgt)), memory, tgt_mask)
+
+    def forward(self, source: Tensor, target: Tensor):
         tgt_input = target[:-1, :]
         src_emb_pe = self.pe(self.src_tok_emb(source))
         tgt_emb_pe = self.pe(self.tgt_tok_emb(tgt_input))
@@ -65,26 +67,6 @@ class Seq2Seq(pl.LightningModule):
         out = self.generater(out)
 
         return out
-
-    def _predict_by_greedy(self, source: Tensor):
-        src_mask, src_padding_mask = self._create_src_mask(source)
-        src_emb_pe = self.pe(self.src_tok_emb(source))
-        memory = self.encoder(src_emb_pe, src_mask, src_padding_mask)
-        ys = torch.ones(1, 1).to(self.device)
-
-        for i in range(self.maxlen - 1):
-            tgt_emb_pe = self.pe(self.tgt_tok_emb(ys))
-            tgt_mask = (self._generate_square_subsequent_mask(ys.shape[0])).type(torch.bool)
-            out = self.decoder(tgt_emb_pe, memory, tgt_mask)
-            out = out.transpose(0, 1)
-            prob = self.generater(out[:, -1])
-            _, next_word = torch.max(prob, dim=1)
-            next_word = next_word.item()
-
-            ys = torch.cat([ys, torch.ones(1, 1).type_as(source.data).fill_(next_word)], dim=0)
-            if next_word == self.eos_idx:
-                break
-        return ys
 
     def _create_src_mask(self, src: Tensor):
         src_size = src.shape[0]
@@ -119,13 +101,6 @@ class Seq2Seq(pl.LightningModule):
         return loss
 
     def validation_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
-        x, t = batch
-        tgt_out = t[1:, :]
-        preds = self.forward(x, t)
-        loss = self.compute_loss(preds, tgt_out)
-        return loss
-
-    def test_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
         x, t = batch
         tgt_out = t[1:, :]
         preds = self.forward(x, t)
