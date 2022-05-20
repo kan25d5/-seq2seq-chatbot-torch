@@ -3,6 +3,14 @@ EPOCH_SIZE = 100
 
 
 def main():
+    import os
+
+    # Reference:
+    # https://stackoverflow.com/questions/30791550/limit-number-of-threads-in-numpy/31622299#31622299
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
+    os.environ["OMP_NUM_THREADS"] = "1"
+
     # --------------------------------------
     # Datasetの作成
     # --------------------------------------
