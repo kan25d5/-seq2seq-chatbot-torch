@@ -1,6 +1,41 @@
 # seq2seq-chatbot-torch
 ## Task
-English to Japanese translation model.
+Sequence to Sequence model that learns responses to utterances with twitter corpus.
+
+## Dataset
+The contents of the corpus json file
+
+```json
+[
+    // dialogue set
+    [
+        // dialogue(Same tweet thread)
+        [
+            // Chain of tweets (messages-response)
+            {
+                // message tweet
+                "text" : "aaaaaaaaaaaaaaaaaaaaa!!!",
+                "screen_name" : "@AAAAAAAAA",
+                "tweet_id" : 10934893023490
+            },
+            {
+                // responce tweet
+                "text" : "bbbbbbbbbbbbbbbbbbbbb!!!",
+                "screen_name" : "@BBBBBBBB",
+                "tweet_id" : 10934893023450
+            },
+            {
+                // Response to "responce tweet"
+                "text" : "ccccccccccccccccccccc!!!",
+                "screen_name" : "@AAAAAAAAA",
+                "tweet_id" : 10934893023423
+            }
+            // .....
+        ]
+        // ....
+    ]
+]
+```
 
 ## Using library
 - pytorch==1.11.0 
@@ -12,6 +47,6 @@ English to Japanese translation model.
 - dill==0.3.4
 
 ## Models
- - seq2seq(Encoder-Decoder)
- - seq2seq(Encoder-Decoder + Attention)
- - seq2seq(Transformer)
+ - Encoder-Decoder
+ - Encoder-Decoder + Attention
+ - Transformer (main model)
