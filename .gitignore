@@ -137,6 +137,7 @@ w2v/top_**
 
 # DataSet pickle File
 dataloader/tanaka_dataset**
+dataloader/twitter_dataset_**
 
 # output
 output/
