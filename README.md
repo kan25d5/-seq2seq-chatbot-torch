@@ -52,7 +52,7 @@ The contents of the corpus json file.
  - Transformer (main model)
 
 ## Example of response prediction
-- dataset dialogue paris length
+- dataset dialogue paris(message-response) length
   - train_dataset : 446463
   - val_dataset : 137047
   - test_dataset : 59010
