@@ -1,3 +1,4 @@
+import dill
 from typing import List
 from collections import Counter
 from dataloader.tanaka_dataset import TanakaDataset
@@ -38,6 +39,18 @@ class TanakaVocabs(object):
     def y_decode(self, idx_seq):
         return self.vocab_y.decode(idx_seq)
 
+    def load_char2id_pkl(self, filepath):
+        with open(filepath, "rb") as f:
+            self.vocab_X.char2id = dill.load(f)
+            self.vocab_y.char2id = dill.load(f)
+        self.vocab_X.id2char = {v: k for k, v in self.vocab_X.char2id.items()}
+        self.vocab_y.id2char = {v: k for k, v in self.vocab_y.char2id.items()}
+
+    def save_char2id_pkl(self, filepath):
+        with open(filepath, "wb") as f:
+            dill.dump(self.vocab_X.char2id, f)
+            dill.dump(self.vocab_y.char2id, f)
+
 
 class Vocab(object):
     def __init__(self, top_words=30000) -> None:
@@ -59,9 +72,7 @@ class Vocab(object):
         counter = Counter(self._words).most_common(self.top_words)
         self._words = [c[0] for c in counter]
 
-        self.char2id = {
-            w: (len(self.special_words) + idx) for idx, w in enumerate(self._words)
-        }
+        self.char2id = {w: (len(self.special_words) + idx) for idx, w in enumerate(self._words)}
         for idx, w in enumerate(self.special_words):
             self.char2id[w] = idx
 

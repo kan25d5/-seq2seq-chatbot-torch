@@ -9,7 +9,7 @@
 # EPOCH_SIZE : 最大エポックサイズ
 # --------------------------------------
 DATA_SIZE = 1
-TRAIN_SIZE = 0.7
+TRAIN_SIZE = 0.8
 VAL_SIZE = 0.7
 TOP_WORDS = 80000
 
@@ -40,25 +40,22 @@ def main():
     val_dataset = TwitterDataset()
     test_dataset = TwitterDataset()
 
-    dataset_train_pkl = "dataloader/twitter_dataset_train.model"
-    dataset_val_pkl = "dataloader/twitter_dataset_val.model"
-    dataset_test_pkl = "dataloader/twitter_dataset_test.model"
+    dataset_train_pkl = "dataloader/twitter_dataset_S{}_train.model".format(DATA_SIZE)
+    dataset_val_pkl = "dataloader/twitter_dataset_S{}_val.model".format(DATA_SIZE)
+    dataset_test_pkl = "dataloader/twitter_dataset_S{}_test.model".format(DATA_SIZE)
 
     if not os.path.exists(dataset_train_pkl):
         train_dataset.load_corpus(train_files)
-        train_dataset.save_corpus_pkl(dataset_train_pkl)
     else:
         train_dataset.load_corpus_pkl(dataset_train_pkl)
 
     if not os.path.exists(dataset_val_pkl):
         val_dataset.load_corpus(val_files)
-        val_dataset.save_corpus_pkl(dataset_val_pkl)
     else:
         val_dataset.load_corpus_pkl(dataset_val_pkl)
 
     if not os.path.exists(dataset_test_pkl):
         test_dataset.load_corpus(test_files)
-        test_dataset.save_corpus_pkl(dataset_test_pkl)
     else:
         test_dataset.load_corpus_pkl(dataset_test_pkl)
 
@@ -75,6 +72,10 @@ def main():
         y_bos=True,
         y_eos=True,
     )
+
+    train_dataset.save_corpus_pkl(dataset_train_pkl)
+    val_dataset.save_corpus_pkl(dataset_val_pkl)
+    test_dataset.save_corpus_pkl(dataset_test_pkl)
 
     # --------------------------------------
     # DataLoaderの作成
