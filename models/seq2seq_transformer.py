@@ -107,5 +107,12 @@ class Seq2Seq(pl.LightningModule):
         loss = self.compute_loss(preds, tgt_out)
         return loss
 
+    def test_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
+        x, t = batch
+        tgt_out = t[1:, :]
+        preds = self.forward(x, t)
+        loss = self.compute_loss(preds, tgt_out)
+        return loss
+
     def configure_optimizers(self):
         return optim.Adam(self.parameters(), lr=self.learning_ratio, betas=(0.9, 0.98), eps=1e-9)

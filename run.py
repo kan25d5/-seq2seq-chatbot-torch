@@ -99,6 +99,7 @@ def main():
     # --------------------------------------
     # Modelの適合
     # --------------------------------------
+    import torch
     import pytorch_lightning as pl
 
     # from pytorch_lightning.strategies.ddp import DDPStrategy
@@ -121,6 +122,8 @@ def main():
     )
     trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
     trainer.test(model, test_dataloader)
+
+    torch.save(model.state_dict(), "output/model.pth")
 
 
 if __name__ == "__main__":
