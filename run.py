@@ -1,3 +1,18 @@
+# --------------------------------------
+# 定数
+# DATA_SIZE : 使用するコーパスファイルの割合
+# TRAIN_SIZE : コーパスファイルのうち，トレーニングで利用する割合
+# VAL_SIZE : トレーニングで利用しないコーパスファイルのうち，検証で利用する割合．
+#            残り，つまり1-VAL_SIZEは，テストデータで利用する．
+# TOP_WORDS : 出現頻度上位TOP_WORDSの語彙を使って学習．他はUNKトークンとして配置．
+# BATCH_SIZE : バッチサイズ
+# EPOCH_SIZE : 最大エポックサイズ
+# --------------------------------------
+DATA_SIZE = 1
+TRAIN_SIZE = 0.7
+VAL_SIZE = 0.7
+TOP_WORDS = 80000
+
 BATCH_SIZE = 100
 EPOCH_SIZE = 100
 
@@ -17,7 +32,9 @@ def main():
     from dataloader.twitter_dataset import TwitterDataset
     from utilities.functions import train_val_test
 
-    train_files, val_files, test_files = train_val_test()
+    train_files, val_files, test_files = train_val_test(
+        all_size=DATA_SIZE, train_size=TRAIN_SIZE, val_size=VAL_SIZE
+    )
 
     train_dataset = TwitterDataset()
     val_dataset = TwitterDataset()
@@ -82,7 +99,8 @@ def main():
     # Modelの適合
     # --------------------------------------
     import pytorch_lightning as pl
-    from pytorch_lightning.strategies.ddp import DDPStrategy
+
+    # from pytorch_lightning.strategies.ddp import DDPStrategy
     from multiprocessing import freeze_support
     from utilities.callbacks import DisplayPredictDialogue
 
@@ -95,6 +113,7 @@ def main():
                 TanakaDataLoader(test_dataset, batch_size=1, random_state=0),
             )
         ],
+        # strategy=DDPStrategy(find_unused_parameters=False)
         max_epochs=EPOCH_SIZE,
         accelerator="gpu",
         devices=2,
