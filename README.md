@@ -61,7 +61,7 @@ The contents of the corpus json file.
 - tag description
   - source : Message during the dialogue corpus (Source sequence).
   - target : Response to message during the dialogue corpus  (Target sequence).
-  - preds : Response to the model-generated Source (Greedy Decoding).
+  - preds : Model predicted response (Greedy Decoding).
 
 
 ```
