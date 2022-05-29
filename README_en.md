@@ -1,31 +1,31 @@
 # seq2seq-chatbot-torch
 ## Task
-ツイッター上の会話データを学習し，発話から応答を自動生成するSeq2Seqモデルです．
+Sequence to Sequence model that learns responses to utterances with twitter corpus.
 
 ## Dataset
-Twitterコーパスとして利用したjsonファイルの中身は以下の通りになっています．
+The contents of the corpus json file.
 
 ```json
 [
-    // 対話セット
+    // dialogue set
     [
-        // 対話（同一ツイートスレッド内）
+        // dialogue(Same tweet thread)
         [
-            // ツイートのやり取り（発話と応答のペア）
+            // Chain of tweets (messages-response)
             {
-                // 発話ツイート
+                // message tweet
                 "text" : "aaaaaaaaaaaaaaaaaaaaa!!!",
                 "screen_name" : "@AAAAAAAAA",
                 "tweet_id" : 10934893023490
             },
             {
-                // 応答ツイート
+                // responce tweet
                 "text" : "bbbbbbbbbbbbbbbbbbbbb!!!",
                 "screen_name" : "@BBBBBBBB",
                 "tweet_id" : 10934893023450
             },
             {
-                // 次の発話ツイート（応答ツイートに対する応答）
+                // Response to "responce tweet"
                 "text" : "ccccccccccccccccccccc!!!",
                 "screen_name" : "@AAAAAAAAA",
                 "tweet_id" : 10934893023423
@@ -37,7 +37,7 @@ Twitterコーパスとして利用したjsonファイルの中身は以下の通
 ]
 ```
 
-## 使用ライブラリ
+## Using library
 - pytorch==1.11.0 
 - pytorch-lightning==1.6.0 
 - fugashi==1.1.2
@@ -46,26 +46,32 @@ Twitterコーパスとして利用したjsonファイルの中身は以下の通
 - scikit-learn==1.0.2
 - dill==0.3.4
 
-## 実装したモデル
+## Models
  - Encoder-Decoder
  - Encoder-Decoder + Attention
  - Transformer (main model)
 
-## 応答予測の例
-- 使用したデータセットに含まれるターン数（発話-応答のペアの個数）
-  - train_dataset : 446,463
-  - val_dataset : 137,047
-  - test_dataset : 59,010
-- トレーニングの詳細
+## Example of response prediction
+- dataset dialogue paris(message-response) length
+  - train_dataset : 446463
+  - val_dataset : 137047
+  - test_dataset : 59010
+- training setting
   - BATCH SIZE : 100
   - EPOCH SIZE : 398
-- タグについて
-  - source : データセット中の発話 (Source sequence).
-  - target : sourceに対するデータセット中の応答 (Target sequence).
-  - preds : Greedy Decodingによるtarget予測の結果.
-- dataloader_type ラベルについて
-  - train : トレーニングに使用したデータによる応答予測.
-  - test : テストデータによる応答予測（トレーニングに使用されていないデータ）.
+- training result
+  - spec
+    - Intel(R) Xeon(R) Gold 5320 CPU @ 2.20GHz x 4
+    - NVIDIA A100(40GB) x 2
+    - RAM 527GB
+  - training time : 30:49:16
+- tag description
+  - source : Message during the dialogue corpus (Source sequence).
+  - target : Response to message during the dialogue corpus  (Target sequence).
+  - preds : Model predicted response (Greedy Decoding).
+- dataloader_type label description
+  - train : Prediction by the training data (used during training).
+  - test : Prediction by the test data (not used during training).
 
 
 

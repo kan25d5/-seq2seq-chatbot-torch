@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import pytorch_lightning as pl
+from torchmetrics import Accuracy
 from typing import Tuple
 from torch import Tensor
 from layers.seq2seq_transformer_layers import PositionalEncoding, TokenEmbedding
@@ -49,6 +50,10 @@ class Seq2Seq(pl.LightningModule):
         # 損失関数の定義
         self.criterion = nn.CrossEntropyLoss(ignore_index=self.padding_idx)
 
+        # 評価手法
+        self.val_acc = Accuracy()
+        self.test_acc = Accuracy()
+
     def encode(self, src: Tensor, src_mask: Tensor):
         return self.encoder(self.pe(self.src_tok_emb(src)), src_mask)
 
@@ -93,6 +98,11 @@ class Seq2Seq(pl.LightningModule):
         loss = self.criterion(preds, target)
         return loss
 
+    def compute_acc(self, preds: Tensor, target: Tensor, acc):
+        preds = preds.reshape(-1, preds.shape[-1])
+        target = target.reshape(-1)
+        return acc(preds, target)
+
     def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
         x, t = batch
         tgt_out = t[1:, :]
@@ -102,16 +112,30 @@ class Seq2Seq(pl.LightningModule):
 
     def validation_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
         x, t = batch
+        batch_size = x.size(0)
         tgt_out = t[1:, :]
         preds = self.forward(x, t)
+
         loss = self.compute_loss(preds, tgt_out)
+        acc = self.compute_acc(preds, tgt_out, self.val_acc)
+
+        self.log("val_loss", loss, batch_size=batch_size)
+        self.log("val_acc", acc, batch_size=batch_size)
+
         return loss
 
     def test_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
         x, t = batch
+        batch_size = x.size(0)
         tgt_out = t[1:, :]
         preds = self.forward(x, t)
+
         loss = self.compute_loss(preds, tgt_out)
+        acc = self.compute_acc(preds, tgt_out, self.test_acc)
+
+        self.log("test_loss", loss, batch_size=batch_size)
+        self.log("test_acc", acc, batch_size=batch_size)
+
         return loss
 
     def configure_optimizers(self):

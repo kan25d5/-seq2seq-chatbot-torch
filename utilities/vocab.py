@@ -5,18 +5,13 @@ from dataloader.tanaka_dataset import TanakaDataset
 
 
 class TanakaVocabs(object):
-    def __init__(
-        self,
-        datasets: List[TanakaDataset],
-        top_words=30000,
-        X_bos=False,
-        X_eos=False,
-        y_bos=False,
-        y_eos=False,
-    ) -> None:
+    def __init__(self, top_words=30000,) -> None:
         self.vocab_X = Vocab(top_words)
         self.vocab_y = Vocab(top_words)
 
+    def fit_transform(
+        self, datasets: List[TanakaDataset], X_bos=False, X_eos=False, y_bos=True, y_eos=False
+    ):
         # Fit words from all datasets.
         for dataset in datasets:
             self.vocab_X.fit(dataset.messages)
