@@ -60,6 +60,10 @@ The contents of the corpus json file.
   - BATCH SIZE : 100
   - EPOCH SIZE : 398
 - training result
+  - spec
+    - Intel(R) Xeon(R) Gold 5320 CPU @ 2.20GHz x 4
+    - NVIDIA A100(40GB) x 2
+    - RAM 527GB
   - training time : 30:49:16
 - tag description
   - source : Message during the dialogue corpus (Source sequence).
