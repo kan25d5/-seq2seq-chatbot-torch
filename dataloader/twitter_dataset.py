@@ -10,6 +10,9 @@ class TwitterDataset(object):
         self.messages = []
         self.responses = []
 
+    def __len__(self):
+        return len(self.messages)
+
     def load_corpus(self, corpus_filelist: list):
         for corpus_file in corpus_filelist:
             self._load_corpus_file(corpus_file)

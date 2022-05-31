@@ -9,15 +9,16 @@
 # BATCH_SIZE : バッチサイズ
 # EPOCH_SIZE : 最大エポックサイズ
 DATA_SIZE = 1
-TRAIN_SIZE = 0.8
+TRAIN_SIZE = 0.9
 VAL_SIZE = 0.7
 TOP_WORDS = 80000
 
 BATCH_SIZE = 100
-EPOCH_SIZE = 400
+EPOCH_SIZE = 100
 
 
 import os
+import random
 
 
 # グローバル変数
@@ -41,18 +42,33 @@ def get_dataset():
     # train_datasetのロード
     if os.path.exists(dataset_train_pkl):
         train_dataset.load_corpus_pkl(dataset_train_pkl)
+        print("train_dataset content")
+        for _ in range(5):
+            i = random.randint(0, len(train_dataset))
+            print(train_dataset.messages[i])
+            print(train_dataset.responses[i])
     else:
         train_dataset.load_corpus(train_files)
 
     # val_datasetのロード
     if os.path.exists(dataset_val_pkl):
         val_dataset.load_corpus_pkl(dataset_val_pkl)
+        print("val_dataset content")
+        for _ in range(5):
+            i = random.randint(0, len(val_dataset))
+            print(train_dataset.messages[i])
+            print(train_dataset.responses[i])
     else:
         val_dataset.load_corpus(val_files)
 
     # test_datasetのロード
     if os.path.exists(dataset_test_pkl):
         test_dataset.load_corpus_pkl(dataset_test_pkl)
+        print("test_dataset content")
+        for _ in range(5):
+            i = random.randint(0, len(test_dataset))
+            print(test_dataset.messages[i])
+            print(test_dataset.responses[i])
     else:
         test_dataset.load_corpus(test_files)
 
@@ -73,6 +89,8 @@ def transform_dataset_and_get_vocab(all_datasets):
         all_datasets[0].save_corpus_pkl(dataset_train_pkl)
         all_datasets[1].save_corpus_pkl(dataset_val_pkl)
         all_datasets[2].save_corpus_pkl(dataset_test_pkl)
+
+        vocabs.save_char2id_pkl(CHAR2ID)
 
     return vocabs
 

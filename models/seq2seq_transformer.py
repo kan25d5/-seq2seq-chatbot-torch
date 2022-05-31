@@ -6,6 +6,7 @@ from torchmetrics import Accuracy
 from typing import Tuple
 from torch import Tensor
 from layers.seq2seq_transformer_layers import PositionalEncoding, TokenEmbedding
+from utilities.constant import SAVE_MODELS_PTH
 
 
 class Seq2Seq(pl.LightningModule):
@@ -51,7 +52,6 @@ class Seq2Seq(pl.LightningModule):
         self.criterion = nn.CrossEntropyLoss(ignore_index=self.padding_idx)
 
         # 評価手法
-        self.val_acc = Accuracy()
         self.test_acc = Accuracy()
 
     def encode(self, src: Tensor, src_mask: Tensor):
@@ -105,9 +105,21 @@ class Seq2Seq(pl.LightningModule):
 
     def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
         x, t = batch
+        batch_size = x.size(0)
         tgt_out = t[1:, :]
         preds = self.forward(x, t)
+
         loss = self.compute_loss(preds, tgt_out)
+        self.log(
+            "train_loss",
+            loss,
+            on_step=False,
+            batch_size=batch_size,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+        )
+
         return loss
 
     def validation_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
@@ -117,12 +129,21 @@ class Seq2Seq(pl.LightningModule):
         preds = self.forward(x, t)
 
         loss = self.compute_loss(preds, tgt_out)
-        acc = self.compute_acc(preds, tgt_out, self.val_acc)
 
-        self.log("val_loss", loss, batch_size=batch_size)
-        self.log("val_acc", acc, batch_size=batch_size)
+        self.log(
+            "val_loss",
+            value=loss,
+            batch_size=batch_size,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=False,
+            logger=True,
+        )
 
         return loss
+
+    def validation_epoch_end(self, outputs):
+        torch.save(self.state_dict(), SAVE_MODELS_PTH)
 
     def test_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
         x, t = batch
@@ -132,9 +153,24 @@ class Seq2Seq(pl.LightningModule):
 
         loss = self.compute_loss(preds, tgt_out)
         acc = self.compute_acc(preds, tgt_out, self.test_acc)
-
-        self.log("test_loss", loss, batch_size=batch_size)
-        self.log("test_acc", acc, batch_size=batch_size)
+        self.log(
+            "test_loss",
+            loss,
+            batch_size=batch_size,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+        )
+        self.log(
+            "test_acc",
+            acc,
+            batch_size=batch_size,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+        )
 
         return loss
 

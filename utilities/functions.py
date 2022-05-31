@@ -20,4 +20,9 @@ def train_val_test(all_size=0.7, train_size=0.7, val_size=0.7):
     val_files = other_files[0 : int(len(other_files) * val_size)]
     test_files = other_files[int(len(other_files) * val_size) :]
 
+    print("split size : ")
+    print("\ttrain size : {}".format(len(train_files)))
+    print("\tval size : {}".format(len(val_files)))
+    print("\ttest size : {}".format(len(test_files)))
+
     return train_files, val_files, test_files

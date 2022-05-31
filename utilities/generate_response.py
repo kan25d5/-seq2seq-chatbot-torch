@@ -2,26 +2,16 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 from dataloader.twitter_transform import TwitterTransform
-from models.seq2seq_transformer import Seq2Seq
 from utilities.vocab import TanakaVocabs
 
 
 class GenerateResponse(object):
-    def __init__(self, model: nn.Module = None) -> None:
-        # ユーティリティクラスのインスタンス化
-        self.vocabs = TanakaVocabs()
-        self.transform = TwitterTransform()
-        self.vocabs.load_char2id_pkl("utilities/char2id.model")
-
-        # モデルのインスタンス化＆ロード
-        input_dim = len(self.vocabs.vocab_X.char2id)
-        output_dim = len(self.vocabs.vocab_y.char2id)
-
-        if model is None:
-            self.model = Seq2Seq(input_dim, output_dim, maxlen=60 + 8)
-            self.model.load_state_dict(torch.load("output/model.pth"))
-        else:
-            self.model = model
+    def __init__(
+        self, model: nn.Module, vocabs: TanakaVocabs, transform=TwitterTransform()
+    ) -> None:
+        self.model = model
+        self.vocabs = vocabs
+        self.transform = transform
 
     def __greedy_decode(self, src: Tensor):
         src_shape = (src.shape[0], src.shape[0])
