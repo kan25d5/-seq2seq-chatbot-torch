@@ -4,9 +4,9 @@ from utilities.functions import load_json
 
 
 class TwitterDataset(object):
-    def __init__(self, limit_len=60) -> None:
+    def __init__(self, limit_len=60, transform: TwitterTransform = None) -> None:
         self.limit_len = limit_len
-        self.transform = TwitterTransform()
+        self.transform = transform
         self.messages = []
         self.responses = []
 
@@ -35,8 +35,9 @@ class TwitterDataset(object):
                 msg = dialogue[i]["text"]
                 res = dialogue[i + 1]["text"]
 
-                msg = self.transform(msg)
-                res = self.transform(res)
+                if self.transform is not None:
+                    msg = self.transform(msg)
+                    res = self.transform(res)
 
                 if len(msg.split()) > self.limit_len:
                     continue
