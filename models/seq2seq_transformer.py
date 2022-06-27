@@ -41,7 +41,9 @@ class Seq2Seq(pl.LightningModule):
         self.tgt_tok_emb = TokenEmbedding(
             tgt_vocab_size, self.emb_size, padding_idx=self.padding_idx
         )
-        self.pe = PositionalEncoding(self.d_model, max_len=self.maxlen, device=self.device)
+        self.pe = PositionalEncoding(
+            self.d_model, max_len=self.maxlen, device=self.device
+        )
         encoder_layer = nn.TransformerEncoderLayer(self.d_model, self.nhead)
         self.encoder = nn.TransformerEncoder(encoder_layer, num_layers)
         decoder_layer = nn.TransformerDecoderLayer(self.d_model, self.nhead)
@@ -68,14 +70,18 @@ class Seq2Seq(pl.LightningModule):
         tgt_mask, tgt_padding_mask = self._create_tgt_mask(tgt_input)
 
         memory = self.encoder(src_emb_pe, src_mask, src_padding_mask)
-        out = self.decoder(tgt_emb_pe, memory, tgt_mask, None, tgt_padding_mask, src_padding_mask)
+        out = self.decoder(
+            tgt_emb_pe, memory, tgt_mask, None, tgt_padding_mask, src_padding_mask
+        )
         out = self.generater(out)
 
         return out
 
     def _create_src_mask(self, src: Tensor):
         src_size = src.shape[0]
-        src_mask = torch.zeros((src_size, src_size), device=self.device).type(torch.bool)
+        src_mask = torch.zeros((src_size, src_size), device=self.device).type(
+            torch.bool
+        )
         src_padding_mask = (src == self.padding_idx).transpose(0, 1)
         return src_mask.to(self.device), src_padding_mask.to(self.device)
 
@@ -143,7 +149,9 @@ class Seq2Seq(pl.LightningModule):
         return loss
 
     def validation_epoch_end(self, outputs):
-        torch.save(self.state_dict(), SAVE_MODELS_PTH)
+        if self.current_epoch % 5 == 0:
+            model_path = "output/model_epoch{}.pth".format(self.current_epoch)
+            torch.save(self.state_dict(), model_path)
 
     def test_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):
         x, t = batch
@@ -175,4 +183,7 @@ class Seq2Seq(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        return optim.Adam(self.parameters(), lr=self.learning_ratio, betas=(0.9, 0.98), eps=1e-9)
+        return optim.Adam(
+            self.parameters(), lr=self.learning_ratio, betas=(0.9, 0.98), eps=1e-9
+        )
+

@@ -13,6 +13,7 @@ TRAIN_SIZE = 0.9
 VAL_SIZE = 0.7
 TOP_WORDS = 80000
 
+MAXLEN = 60
 BATCH_SIZE = 100
 EPOCH_SIZE = 100
 
@@ -28,6 +29,7 @@ dataset_test_pkl = "dataloader/twitter_dataset_S{}_test.model".format(DATA_SIZE)
 
 
 def get_dataset():
+    from dataloader.twitter_transform import TwitterTransform
     from dataloader.twitter_dataset import TwitterDataset
     from utilities.functions import train_val_test
 
@@ -35,9 +37,10 @@ def get_dataset():
         all_size=DATA_SIZE, train_size=TRAIN_SIZE, val_size=VAL_SIZE
     )
 
-    train_dataset = TwitterDataset()
-    val_dataset = TwitterDataset()
-    test_dataset = TwitterDataset()
+    transform = TwitterTransform()
+    train_dataset = TwitterDataset(limit_len=MAXLEN, transform=transform)
+    val_dataset = TwitterDataset(limit_len=MAXLEN, transform=transform)
+    test_dataset = TwitterDataset(limit_len=MAXLEN, transform=transform)
 
     # train_datasetのロード
     if os.path.exists(dataset_train_pkl):
@@ -163,7 +166,9 @@ def main():
             os.getcwd(), version="B{}_E{}_S{}".format(BATCH_SIZE, EPOCH_SIZE, DATA_SIZE)
         ),
     )
-    trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
+    trainer.fit(
+        model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader
+    )
     trainer.test(model, test_dataloader)
 
     torch.save(model.state_dict(), SAVE_MODELS_PTH)
