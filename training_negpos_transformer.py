@@ -8,6 +8,19 @@
 # TOP_WORDS : 出現頻度上位TOP_WORDSの語彙を使って学習．他はUNKトークンとして配置．
 # BATCH_SIZE : バッチサイズ
 # EPOCH_SIZE : 最大エポックサイズ
+# 
+# -----------------------------------
+# Data Info
+# -----------------------------------
+# case : neg
+#     train_dialogue : 25497 turns
+#     val_dialogue : 7649 turns
+#     test_dialogue : 3279 turns
+# case : pos
+#     train_dialogue : 12694 turns
+#     val_dialogue : 3808 turns
+#     test_dialogue : 1633 turns
+# 
 import os
 import random
 from typing import List, Tuple
@@ -20,13 +33,12 @@ VAL_SIZE = 0.7
 TOP_WORDS = 80000
 
 BATCH_SIZE = 100
-EPOCH_SIZE = 100
+EPOCH_SIZE = 32
 MAXLEN = 60
 
-POS_CORPUS_FILE = "output/pos.json"
-NEG_CORPUS_FILE = "output/neg.json"
-
-USE_CORPUS = POS_CORPUS_FILE
+NEGPOS = "pos"
+USE_CORPUS = "output/{}.json".format(NEGPOS)
+BASE_STATE_DIC = "output/model_epoch40.pth"
 
 
 def split_train_val_test(filepath, train_size=0.7, val_size=0.7):
@@ -115,7 +127,9 @@ def main():
 
     src_vocab_size = len(vocabs.vocab_X.char2id)
     tgt_vocab_size = len(vocabs.vocab_y.char2id)
-    model = Seq2Seq(src_vocab_size, tgt_vocab_size, maxlen=MAXLEN)
+    model = Seq2Seq(
+        src_vocab_size, tgt_vocab_size, maxlen=60 + 8, output_filename=NEGPOS
+    )
 
     # -------------------------------------------------
     # トレーニング
@@ -129,7 +143,7 @@ def main():
     from utilities.callbacks import DisplayPredictDialogue
     from utilities.constant import SAVE_MODELS_PTH
 
-    model.load_state_dict(torch.load("output/E38_model.pth"))
+    model.load_state_dict(torch.load(BASE_STATE_DIC))
 
     freeze_support()
     trainer = pl.Trainer(
@@ -146,7 +160,9 @@ def main():
         devices=2,
         logger=TensorBoardLogger(
             os.getcwd(),
-            version="B{}_E{}_S{}_pos".format(BATCH_SIZE, EPOCH_SIZE, DATA_SIZE),
+            version="B{}_E{}_S{}_{}_pos".format(
+                BATCH_SIZE, EPOCH_SIZE, DATA_SIZE, NEGPOS
+            ),
         ),
     )
     trainer.fit(

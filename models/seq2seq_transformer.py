@@ -20,6 +20,7 @@ class Seq2Seq(pl.LightningModule):
         padding_idx=0,
         eos_idx=2,
         learning_ratio=0.0001,
+        output_filename="",
     ) -> None:
         super().__init__()
 
@@ -33,6 +34,7 @@ class Seq2Seq(pl.LightningModule):
         self.padding_idx = padding_idx
         self.eos_idx = eos_idx
         self.learning_ratio = learning_ratio
+        self.output_filename = output_filename
 
         # レイヤーの定義
         self.src_tok_emb = TokenEmbedding(
@@ -148,9 +150,11 @@ class Seq2Seq(pl.LightningModule):
 
         return loss
 
-    def validation_epoch_end(self, outputs):
+    def training_epoch_end(self, outputs):
         if self.current_epoch % 5 == 0:
-            model_path = "output/model_epoch{}.pth".format(self.current_epoch)
+            model_path = "output/{}model_epoch{}.pth".format(
+                self.output_filename, self.current_epoch
+            )
             torch.save(self.state_dict(), model_path)
 
     def test_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int):

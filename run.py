@@ -6,7 +6,7 @@ from utilities.vocab import TanakaVocabs
 
 TOP_WORDS = 80000
 CHAR2ID_FILEPATH = "utilities/char2id.model"
-MODEL_FILEPATH = "output/model.pth"
+MODEL_FILEPATH = "output/posmodel_epoch30.pth"
 MAXLEN = 60
 
 
