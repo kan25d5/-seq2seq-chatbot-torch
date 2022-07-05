@@ -8,7 +8,7 @@
 # TOP_WORDS : 出現頻度上位TOP_WORDSの語彙を使って学習．他はUNKトークンとして配置．
 # BATCH_SIZE : バッチサイズ
 # EPOCH_SIZE : 最大エポックサイズ
-# 
+#
 # -----------------------------------
 # Data Info
 # -----------------------------------
@@ -20,7 +20,7 @@
 #     train_dialogue : 12694 turns
 #     val_dialogue : 3808 turns
 #     test_dialogue : 1633 turns
-# 
+#
 import os
 import random
 from typing import List, Tuple
@@ -28,7 +28,7 @@ from dataloader.twitter_dataset import TwitterDataset
 
 
 DATA_SIZE = 1
-TRAIN_SIZE = 0.9
+SPLIT_RATIO = 0.2
 VAL_SIZE = 0.7
 TOP_WORDS = 80000
 
@@ -36,25 +36,41 @@ BATCH_SIZE = 100
 EPOCH_SIZE = 32
 MAXLEN = 60
 
-NEGPOS = "pos"
+NEGPOS = "neg"
 USE_CORPUS = "output/{}.json".format(NEGPOS)
-BASE_STATE_DIC = "output/model_epoch40.pth"
+NEG_CORPUS = "output/neg.json"
+POS_CORPUS = "output/pos.json"
+NML_CORPUS = "output/normal.json"
+BASE_STATE_DIC = "output/normalmodel_epoch30.pth"
 
 
 def split_train_val_test(filepath, train_size=0.7, val_size=0.7):
+    import random
     from utilities.functions import load_json
 
-    dialogues = load_json(filepath)
-    all_size = len(dialogues)
+    train_dialogue = load_json(filepath)
+    neg_dialogue = load_json(NEG_CORPUS)
+    pos_dialogue = load_json(POS_CORPUS)
+    nml_dialogue = load_json(NML_CORPUS)
 
-    train_dialogue = dialogues[0 : int(all_size * train_size)]
-    train_other = dialogues[int(all_size * train_size) :]
-    val_dialogue = train_other[0 : int(len(train_other) * val_size)]
-    test_dialogue = train_other[int(len(train_other) * val_size) :]
+    other_dialogue = []
+    other_dialogue.extend(neg_dialogue)
+    other_dialogue.extend(pos_dialogue)
+    other_dialogue.extend(nml_dialogue)
+    random.shuffle(other_dialogue)
 
-    print("train_dialogue : {} turns".format(len(train_dialogue)))
-    print("val_dialogue : {} turns".format(len(val_dialogue)))
-    print("test_dialogue : {} turns".format(len(test_dialogue)))
+    train_size = len(train_dialogue)
+    other_dialogue = other_dialogue[: int(train_size * SPLIT_RATIO)]
+
+    val_dialogue = other_dialogue[: int(len(other_dialogue) * VAL_SIZE)]
+    test_dialogue = other_dialogue[int(len(other_dialogue) * VAL_SIZE) : int(len(other_dialogue))]
+
+    val_size = len(val_dialogue)
+    test_size = len(test_dialogue)
+
+    print("train_size : {}".format(train_size))
+    print("val_size : {}".format(val_size))
+    print("test_size : {}".format(test_size))
 
     return train_dialogue, val_dialogue, test_dialogue
 
@@ -127,9 +143,7 @@ def main():
 
     src_vocab_size = len(vocabs.vocab_X.char2id)
     tgt_vocab_size = len(vocabs.vocab_y.char2id)
-    model = Seq2Seq(
-        src_vocab_size, tgt_vocab_size, maxlen=60 + 8, output_filename=NEGPOS
-    )
+    model = Seq2Seq(src_vocab_size, tgt_vocab_size, maxlen=60 + 8, output_filename=NEGPOS)
 
     # -------------------------------------------------
     # トレーニング
@@ -160,14 +174,10 @@ def main():
         devices=2,
         logger=TensorBoardLogger(
             os.getcwd(),
-            version="B{}_E{}_S{}_{}_pos".format(
-                BATCH_SIZE, EPOCH_SIZE, DATA_SIZE, NEGPOS
-            ),
+            version="B{}_E{}_S{}_{}".format(BATCH_SIZE, EPOCH_SIZE, DATA_SIZE, NEGPOS),
         ),
     )
-    trainer.fit(
-        model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader
-    )
+    trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
     trainer.test(model, test_dataloader)
 
     torch.save(model.state_dict(), "output/pos_model.pth")

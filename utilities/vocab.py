@@ -12,11 +12,19 @@ class TanakaVocabs(object):
     def fit_transform(
         self, datasets: List[TanakaDataset], X_bos=False, X_eos=False, y_bos=True, y_eos=False
     ):
+        self.fit(datasets)
+        self.transform(datasets, X_bos, X_eos, y_bos, y_eos)
+        return datasets
+
+    def fit(self, datasets: List[TanakaDataset]):
         # Fit words from all datasets.
         for dataset in datasets:
             self.vocab_X.fit(dataset.messages)
             self.vocab_y.fit(dataset.responses)
 
+    def transform(
+        self, datasets: List[TanakaDataset], X_bos=False, X_eos=False, y_bos=True, y_eos=False
+    ):
         # word-to-index transform from all datasets.
         for dataset in datasets:
             dataset.messages = self.vocab_X.transform(dataset.messages, X_bos, X_eos)

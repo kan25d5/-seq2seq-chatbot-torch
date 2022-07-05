@@ -43,9 +43,7 @@ def get_sentiment_dialogue(limit_len=60):
                 else:
                     raise ValueError("想定しない型：res_scoreの型は{}".format(type(res_score)))
 
-                if (msg_len < 5 or msg_len >= limit_len) or (
-                    res_len < 5 or res_len >= limit_len
-                ):
+                if (msg_len < 5 or msg_len >= limit_len) or (res_len < 5 or res_len >= limit_len):
                     continue
                 if res_score == 0:
                     sentiment_dialogue["normal"].append((msg, res))
@@ -77,6 +75,8 @@ def main():
     with open("pos.json", "w") as f:
         f.write(json.dumps(pos_dialogue, ensure_ascii=False, indent=4))
     with open("neg.json", "w") as f:
+        f.write(json.dumps(neg_dialogue, ensure_ascii=False, indent=4))
+    with open("normal.json", "w") as f:
         f.write(json.dumps(neg_dialogue, ensure_ascii=False, indent=4))
 
 
