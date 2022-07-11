@@ -1,10 +1,10 @@
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import Callback
 from torch import Tensor
-import torch
 from dataloader.tanaka_dataloader import TanakaDataLoader
 from utilities.vocab import TanakaVocabs
 from models.seq2seq_transformer import Seq2Seq
+from utilities.decode import greedy_decode
 
 
 class DisplayPredictDialogue(Callback):
@@ -26,38 +26,13 @@ class DisplayPredictDialogue(Callback):
 
         self._current_epoch = -1
 
-    def greedy_decode(self, model: Seq2Seq, src: Tensor):
-        src_shape = (src.shape[0], src.shape[0])
-        src_mask = torch.zeros(src_shape, dtype=torch.bool, device=model.device)
-        memory = model.encode(src, src_mask)
-        ys = torch.ones(1, 1).type(torch.long).to(model.device)
-
-        for i in range(model.maxlen - 6):
-            tgt_mask = (
-                model._generate_square_subsequent_mask(ys.size(0))
-                .type(torch.bool)
-                .to(model.device)
-            )
-            out = model.decode(ys, memory, tgt_mask)
-            out = out.transpose(0, 1)
-            prob = model.generater(out[:, -1])
-            _, next_word = torch.max(prob, dim=1)
-            next_word = next_word.item()
-
-            ys = torch.cat([ys, torch.ones(1, 1).type_as(src.data).fill_(next_word)], dim=0)
-
-            if next_word == model.eos_idx:
-                break
-
-        return ys
-
     def _predict_dataloader(self, model: Tensor, current_epoch, dataloader, dataloader_type, f):
         f.write("dataloader_type : {}".format(dataloader_type))
         f.write("current epoch : {}\n".format(current_epoch))
 
         for idx, (src, tgt) in enumerate(dataloader):
             source = src.view(-1).tolist()
-            preds = self.greedy_decode(model, src).view(-1).tolist()
+            preds = greedy_decode(model, src).tolist()
             target = tgt.view(-1).tolist()
 
             source = " ".join(self.vocabs.vocab_X.decode(source))
