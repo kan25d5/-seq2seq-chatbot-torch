@@ -32,11 +32,11 @@ SPLIT_RATIO = 0.2
 VAL_SIZE = 0.7
 TOP_WORDS = 80000
 
-BATCH_SIZE = 100
-EPOCH_SIZE = 32
+BATCH_SIZE = 50
+EPOCH_SIZE = 100
 MAXLEN = 60
 
-NEGPOS = "neg"
+NEGPOS = "pos"
 USE_CORPUS = "output/{}.json".format(NEGPOS)
 NEG_CORPUS = "output/neg.json"
 POS_CORPUS = "output/pos.json"
@@ -166,6 +166,7 @@ def main():
                 vocabs,
                 TanakaDataLoader(train_dataset, batch_size=1, random_state=0),
                 TanakaDataLoader(test_dataset, batch_size=1, random_state=0),
+                filename=NEGPOS,
             )
         ],
         # strategy=DDPStrategy(find_unused_parameters=False)

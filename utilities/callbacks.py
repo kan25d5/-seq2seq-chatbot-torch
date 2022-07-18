@@ -14,6 +14,7 @@ class DisplayPredictDialogue(Callback):
         train_dataloader: TanakaDataLoader,
         test_dataloader: TanakaDataLoader,
         translation_direction="enja",
+        filename="output"
     ) -> None:
         if translation_direction not in ["enja", "jaen"]:
             raise ValueError("translation_directionはenja, jaenのいずれかの値指定")
@@ -23,6 +24,7 @@ class DisplayPredictDialogue(Callback):
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
         self.translation_direction = translation_direction
+        self.filename = filename
 
         self._current_epoch = -1
 
@@ -62,7 +64,7 @@ class DisplayPredictDialogue(Callback):
             self._current_epoch = trainer.current_epoch
 
         current_epoch = trainer.current_epoch
-        with open("output/output.txt", "a") as f:
+        with open("output/{}.txt".format(self.filename), "a") as f:
             self._predict_dataloader(pl_module, current_epoch, self.test_dataloader, "test", f)
             self._predict_dataloader(pl_module, current_epoch, self.train_dataloader, "train", f)
 
