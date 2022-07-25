@@ -1,9 +1,9 @@
 import torch
 from torch import Tensor
-from models.seq2seq_transformer import Seq2Seq
+from layers.seq2seq_transformer_layers import Transformer
 
 
-def greedy_decode(model: Seq2Seq, src: Tensor, is_view_minus_one=True) -> Tensor:
+def greedy_decode(model: Transformer, src: Tensor, is_view_minus_one=True) -> Tensor:
     src_shape = (src.shape[0], src.shape[0])
     src_mask = torch.zeros(src_shape, dtype=torch.bool, device=model.device)
     memory = model.encode(src, src_mask)
