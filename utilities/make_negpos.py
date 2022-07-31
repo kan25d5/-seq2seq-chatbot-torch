@@ -132,7 +132,7 @@ def save_json(filename, content):
         f.write(json.dumps(content, ensure_ascii=False, indent=4))
 
 
-def main():
+def make_negpos():
     analyzer = Analyzer()
     transform = TwitterTransform()
 
@@ -157,7 +157,7 @@ def main():
                 if len(msg_lemmas) > MAXLEN or len(res_lemmas) > MAXLEN:
                     continue
 
-                msg_wakati = " ".join(msg_lemmas)
+                msg_wakati = "".join(msg_lemmas)
                 res_wakati = " ".join(res_lemmas)
 
                 if res_score > 0:
@@ -177,6 +177,10 @@ def main():
     save_json("pos", pos)
     save_json("neutral", neutral)
     save_json("err", errs)
+
+
+def main():
+    make_negpos()
 
 
 if __name__ == "__main__":
