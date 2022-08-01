@@ -45,12 +45,6 @@ class Analyzer(oseti.Analyzer):
         return "".join(text_list)
 
     def analyze(self, text):
-        """ Calculate sentiment polarity scores per sentence
-            Arg:
-                text (str)
-            Return:
-                scores (float)
-        """
         scores = []
         lemmas_list = []
 
@@ -75,6 +69,7 @@ class Analyzer(oseti.Analyzer):
         return score, lemmas_list
 
     def _calc_sentiment_polarity(self, sentence):
+        """ref : https://github.com/ikegami-yukino/oseti/blob/master/oseti/oseti.py#L34-L77"""
         polarities = []
         lemmas = []
         n_parallel = 0
@@ -179,8 +174,34 @@ def make_negpos():
     save_json("err", errs)
 
 
+def make_normal():
+    normal = []
+    transform = TwitterTransform()
+
+    for filepath in glob.glob(TWITTER_CORPUS_FOLDER + "*.json"):
+        for dialogue in load_json(filepath):
+            for i in range(len(dialogue) - 1):
+                msg = dialogue[i]["text"]
+                res = dialogue[i + 1]["text"]
+
+                msg = transform(msg)
+                res = transform(res)
+
+                if len(msg.split()) > MAXLEN or len(res.split()) > MAXLEN:
+                    continue
+
+                normal.append([msg, res])
+
+    save_json("normal", normal)
+
+
 def main():
-    make_negpos()
+    # neg/pos整形済みコーパスjsonを作る
+    # make_negpos()
+    #
+    # normal（neg/pos/neutral 全体の整形済みコーパスjsonを作る）
+    # make_normal()
+    pass
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ class TanakaVocabs(object):
         self.vocab_y = Vocab(top_words)
 
     def fit_transform(
-        self, datasets: List[TanakaDataset], X_bos=False, X_eos=False, y_bos=True, y_eos=False
+        self, datasets: List[TanakaDataset], X_bos=True, X_eos=True, y_bos=True, y_eos=True
     ):
         self.fit(datasets)
         self.transform(datasets, X_bos, X_eos, y_bos, y_eos)
@@ -23,12 +23,13 @@ class TanakaVocabs(object):
             self.vocab_y.fit(dataset.responses)
 
     def transform(
-        self, datasets: List[TanakaDataset], X_bos=False, X_eos=False, y_bos=True, y_eos=False
+        self, datasets: List[TanakaDataset], X_bos=True, X_eos=True, y_bos=True, y_eos=True
     ):
         # word-to-index transform from all datasets.
         for dataset in datasets:
             dataset.messages = self.vocab_X.transform(dataset.messages, X_bos, X_eos)
             dataset.responses = self.vocab_y.transform(dataset.responses, y_bos, y_eos)
+        return datasets
 
     def X_transform(self, sentences):
         return self.vocab_X.transform(sentences)
@@ -81,13 +82,13 @@ class Vocab(object):
 
         self.id2char = {v: k for k, v in self.char2id.items()}
 
-    def transform(self, sentences, bos=False, eos=False):
+    def transform(self, sentences, bos=True, eos=True):
         output_t = []
         for sentence in sentences:
             output_t.append(self.encode(sentence, bos, eos))
         return output_t
 
-    def encode(self, sentence, bos=False, eos=False):
+    def encode(self, sentence, bos=True, eos=True):
         output_e = []
         unk_idx = self.char2id[self.unk_char]
         bos_idx = self.char2id[self.bos_char]

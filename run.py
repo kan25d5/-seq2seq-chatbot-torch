@@ -1,97 +1,52 @@
 import argparse
 
-# --------------------------------------
-# ArgumentParserによる属性追加
-# --------------------------------------
-parser = argparse.ArgumentParser(description="Twitter上の対話データを用いた応答予測モデルのトレーニングもしくは応答予測")
-parser.add_argument("mode", help="predict, trainingのどちらかを指定")
-parser.add_argument(
-    "sentiment_type", type=str, help="pos/neg/neutralを指定し，同一性格タイプで学習する",
-)
-parser.add_argument(
-    "-bs", "--batch_size", default=100, type=int, help="trainingの際のバッチサイズを指定(default=100)"
-)
-parser.add_argument(
-    "-es", "--epoch_size", default=30, type=int, help="trainingの際のエポックサイズを指定(default=30)"
-)
-parser.add_argument(
-    "-op", "--optuna", default=False, type=bool, help="optunaによるハイパラ探索(default=False)"
-)
-parser.add_argument(
-    "-nt", "--n_trials", default=50, type=int, help="optunaによるハイパラ探索探索数(default=50)"
-)
-parser.add_argument(
-    "-to", "--timeout", default=1800, type=int, help="optunaによるトライアル時間制限(default=1800sec)"
-)
-parser.add_argument(
-    "-ed",
-    "--encoder_dropout",
-    default=0.2,
-    type=float,
-    help="Encoderのdropout割合を指定．--optunaがTrueなら無視．（default=0.2)",
-)
-parser.add_argument(
-    "-dd",
-    "--decoder_dropout",
-    default=0.2,
-    type=float,
-    help="Decoderのdropout割合を指定．--optunaがTrueなら無視．（default=0.2)",
-)
-parser.add_argument(
-    "-enl",
-    "--encoder_num_layers",
-    default=6,
-    type=int,
-    help="Encoderのレイヤー数を指定．--optunaがTrueなら無視．（default=6)",
-)
-parser.add_argument(
-    "-dnl",
-    "--decoder_num_layers",
-    default=6,
-    type=int,
-    help="Decoderのレイヤー数を指定．--optunaがTrueなら無視．（default=6)",
-)
+
+description = "Twitterコーパスを学習し，応答予測を行うモデル．"
+parser = argparse.ArgumentParser(description=description)
+
+help_mode = "training/predict モデルをトレーニングするか，モデルの応答予測を行うか．"
+help_sentiment_type = "neg/pos/neutral 利用するモデルの選択．"
+help_train_size = "全データ中の訓練データサイズの割合"
+help_val_size = "訓練データ以外データにける検証データサイズの割合"
+help_enl = "encoder layerのレイヤー数"
+help_dnl = "decoder layerのレイヤー数"
+help_edo = "encoderのdropout率"
+help_ddo = "decoderのdropout率"
+help_optuna = "optunaによるハイパラ探索を行うか．オプションを指定するとハイパラ探索を行う．"
+help_tw = "語彙数"
+help_nt = "optunaによるトライアル数"
+help_lt = "学習率"
+
+parser.add_argument("mode", type=str, default="training", help=help_mode)
+parser.add_argument("sentiment_type", type=str, default="neg", help=help_sentiment_type)
+parser.add_argument("-optuna", "--is_optuna", action="store_true", help=help_optuna)
+parser.add_argument("-ts", "--train_size", type=float, default=0.9, help=help_train_size)
+parser.add_argument("-vs", "--val_size", type=float, default=0.7, help=help_val_size)
+parser.add_argument("-bs", "--batch_size", type=int, default=80, help="バッチサイズ")
+parser.add_argument("-es", "--epoch_size", type=int, default=30, help="エポックサイズ")
+parser.add_argument("-enl", "--encoder_num_layers", type=int, default=6, help=help_enl)
+parser.add_argument("-dnl", "--decoder_num_layers", type=int, default=6, help=help_dnl)
+parser.add_argument("-edo", "--encoder_dropout", type=float, default=0.2, help=help_edo)
+parser.add_argument("-ddo", "--decoder_dropout", type=float, default=0.2, help=help_ddo)
+parser.add_argument("-tw", "--top_words", type=int, default=80000, help=help_tw)
+parser.add_argument("-nt", "--n_trials", type=int, default=100, help=help_nt)
+parser.add_argument("-lt", "--learning_ratio", type=float, default=0.0001, help=help_lt)
 
 
-# --------------------------------------
-# コマンドライン引数による分岐関数
-# --------------------------------------
-def _switch_predict(args):
-    sentiment_type = args.sentiment_type
-
-    if sentiment_type == "neutral":
-        pass
-    elif sentiment_type == "neg" or sentiment_type == "pos":
-        pass
-    else:
-        raise ValueError("sentiment_typeはneg/pos/neutralのいずれか")
-
-
-def _switch_training(args):
-    sentiment_type = args.sentiment_type
-
-    if sentiment_type == "neutral":
-        import training_neutral as tn
-
-        tn.training_run(args)
-    elif sentiment_type == "neg" or sentiment_type == "pos":
-        pass
-    else:
-        raise ValueError("sentiment_typeはneg/pos/neutralのいずれか")
-
-
-# --------------------------------------
-# エントリーポイント
-# --------------------------------------
 def main():
     args = parser.parse_args()
 
-    if args.mode == "predict":
-        _switch_predict(args)
-    elif args.mode == "training":
-        _switch_training(args)
+    boot_mode = args.mode
+    if boot_mode == "training":
+        from utilities.training_functions import training
+
+        training(args)
+    elif boot_mode == "predict":
+        from utilities.predict_functions import predict
+
+        predict(args)
     else:
-        raise argparse.ArgumentError(None, message="modeの指定が誤っています．")
+        raise ValueError("第一引数の指定はtraining/predictのいずれか．")
 
 
 if __name__ == "__main__":
