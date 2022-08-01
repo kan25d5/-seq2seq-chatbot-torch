@@ -115,7 +115,6 @@ def get_dataloader(all_datasets: List[TwitterDataset], batch_size: int):
 
 def training_optuna(trial: optuna.Trial, args, model_data):
     """optunaによるハイパラ探索（目的関数）"""
-
     # --------------------------------------------------
     # 必要ライブラリのインポート
     # --------------------------------------------------
@@ -132,7 +131,6 @@ def training_optuna(trial: optuna.Trial, args, model_data):
     # --------------------------------------------------
     # 事前準備
     # --------------------------------------------------
-
     # 必要なデータの取り出し
     all_datasets = model_data["all_datasets"]
     vocabs = model_data["vocabs"]
@@ -185,7 +183,6 @@ def training_optuna(trial: optuna.Trial, args, model_data):
     # --------------------------------------------------
     # モデルの定義
     # --------------------------------------------------
-
     # モデルの定義
     model = Seq2Seq(
         src_vocab_size,
@@ -219,7 +216,8 @@ def training_optuna(trial: optuna.Trial, args, model_data):
     trainer.test(model, all_dataloader[2])
 
     torch.save(model.state_dict(), os.path.join(folderpath, filename + ".pth"))
-    return logger.metrics[-1]["accuracy"]
+
+    return trainer.callback_metrics["val_loss"].item()
 
 
 def training_no_optuna(args, model_data):
